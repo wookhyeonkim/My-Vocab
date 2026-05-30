@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>My Vocab</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap');
+:root{--bg:#0d0d0f;--sf:#16161a;--sf2:#1e1e24;--br:#2a2a33;--ac:#e8c96d;--ac2:#7eb8f7;--ac3:#f07fa0;--ac4:#8adfb4;--tx:#f0eff4;--mu:#888899;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+.hdr{padding:16px 18px 0;text-align:center;position:sticky;top:0;background:var(--bg);z-index:100;border-bottom:1px solid var(--br);}
+.hdr h1{font-family:'Playfair Display',serif;font-size:23px;color:var(--ac);letter-spacing:1px;margin-bottom:1px;}
+.hdr p{font-size:10.5px;color:var(--mu);margin-bottom:9px;}
+.tabs{display:flex;background:var(--sf);border-radius:9px 9px 0 0;overflow:hidden;margin:0 -18px;}
+.tb{flex:1;padding:10px 3px;background:none;border:none;color:var(--mu);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;cursor:pointer;transition:all .2s;position:relative;}
+.tb.on{color:var(--ac);background:var(--sf2);}
+.tb.on::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--ac);}
+.badge{display:inline-block;background:var(--ac3);color:#fff;font-size:8.5px;border-radius:8px;padding:1px 5px;margin-left:2px;vertical-align:middle;font-weight:700;}
+.pnl{display:none;}.pnl.on{display:block;}
+.ctrl{padding:10px 14px;display:flex;gap:7px;align-items:center;background:var(--bg);position:sticky;top:113px;z-index:90;border-bottom:1px solid var(--br);}
+.ctrl input{flex:1;background:var(--sf);border:1px solid var(--br);border-radius:9px;padding:7px 11px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;}
+.ctrl input::placeholder{color:var(--mu);}
+.ctrl input:focus{border-color:var(--ac);}
+.btn{background:var(--sf2);border:1px solid var(--br);border-radius:9px;padding:7px 11px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:500;cursor:pointer;white-space:nowrap;}
+.btn:active{transform:scale(.96);}
+.btn.a{background:var(--ac);color:#0d0d0f;border-color:var(--ac);font-weight:700;}
+.btn.g{background:var(--ac4);color:#0d0d0f;border-color:var(--ac4);font-weight:700;}
+.pi{padding:6px 14px;display:flex;justify-content:space-between;align-items:center;font-size:10.5px;color:var(--mu);}
+.pnav{display:flex;gap:5px;align-items:center;}
+.pnav button{background:var(--sf);border:1px solid var(--br);border-radius:7px;padding:3px 9px;color:var(--tx);font-size:11px;cursor:pointer;}
+.pnav button:disabled{opacity:.3;cursor:default;}
+.pnd{font-size:11.5px;color:var(--ac);font-weight:700;min-width:44px;text-align:center;}
+.wl{padding:8px 13px 40px;}
+.wc{background:var(--sf);border:1px solid var(--br);border-radius:13px;margin-bottom:8px;overflow:hidden;}
+.wc:active{transform:scale(.99);}
+.ch{display:flex;align-items:center;padding:12px 13px;cursor:pointer;gap:9px;}
+.wi{flex:1;min-width:0;}
+.wtop{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.wen{font-family:'Playfair Display',serif;font-size:20px;color:var(--tx);}
+.wpron{font-size:11px;color:var(--ac2);font-family:monospace;margin-top:2px;}
+.wko{font-size:13px;color:var(--ac);font-weight:600;margin-top:3px;}
+.wpos{font-size:9.5px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;}
+.tph{background:rgba(240,127,160,.14);color:var(--ac3);font-size:8.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:2px 6px;border-radius:5px;border:1px solid rgba(240,127,160,.3);}
+.ca{display:flex;gap:5px;align-items:center;flex-shrink:0;}
+.sbtn{background:var(--sf2);border:1px solid var(--br);border-radius:7px;padding:5px 8px;font-size:15px;cursor:pointer;}
+.sbtn:active{background:var(--ac2);border-color:var(--ac2);}
+.vbtn{background:none;border:1.5px solid var(--br);border-radius:7px;padding:5px 8px;font-size:15px;cursor:pointer;}
+.vbtn.sv{border-color:var(--ac2);background:rgba(126,184,247,.1);}
+.ei{color:var(--mu);font-size:11px;transition:transform .2s;}
+.wc.ex .ei{transform:rotate(180deg);}
+.cd{display:none;padding:0 13px 13px;border-top:1px solid var(--br);}
+.wc.ex .cd{display:block;}
+.ds{margin-top:10px;}
+.dl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mu);margin-bottom:4px;}
+.nb{background:rgba(232,201,109,.07);border:1px solid rgba(232,201,109,.2);border-radius:9px;padding:9px 11px;font-size:12px;color:#d4b85a;line-height:1.65;}
+.sg{display:flex;flex-direction:column;gap:4px;}
+.sr{display:flex;gap:7px;align-items:flex-start;}
+.sc{background:rgba(138,223,180,.1);border:1px solid rgba(138,223,180,.22);color:var(--ac4);font-size:11px;font-weight:600;padding:2px 8px;border-radius:7px;white-space:nowrap;flex-shrink:0;}
+.sm{font-size:11px;color:var(--mu);line-height:1.5;padding-top:2px;}
+.exb{font-size:12.5px;color:var(--tx);line-height:1.65;padding:7px 10px;background:var(--sf2);border-radius:8px;border-left:3px solid var(--ac);margin-bottom:4px;}
+.exb em{color:var(--ac);font-style:normal;font-weight:700;}
+.exko{font-size:10.5px;color:var(--mu);margin-top:2px;}
+.rc{display:flex;flex-wrap:wrap;gap:4px;}
+.rch{background:rgba(126,184,247,.08);border:1px solid rgba(126,184,247,.18);color:var(--ac2);font-size:10.5px;padding:2px 8px;border-radius:6px;}
+.se{text-align:center;padding:50px 18px;color:var(--mu);}
+.se .ic{font-size:44px;margin-bottom:10px;}
+.svc{padding:10px 14px 0;display:flex;justify-content:flex-end;}
+.svl{padding:8px 13px 40px;}
+.qc{padding:16px;}
+.qsetup{text-align:center;padding:14px 0;}
+.qsetup h2{font-family:'Playfair Display',serif;font-size:21px;color:var(--ac);margin-bottom:7px;}
+.qsetup p{font-size:12.5px;color:var(--mu);margin-bottom:18px;line-height:1.6;}
+.qm{display:flex;flex-direction:column;gap:9px;}
+.qcard{background:var(--sf);border:1px solid var(--br);border-radius:14px;padding:24px 16px 18px;text-align:center;margin-bottom:13px;min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.qpt{font-size:10.5px;color:var(--mu);margin-bottom:4px;}
+.qw{font-family:'Playfair Display',serif;font-size:25px;color:var(--tx);margin-bottom:3px;line-height:1.3;}
+.qsub{font-size:10.5px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;}
+.qopts{display:flex;flex-direction:column;gap:8px;}
+.qob{background:var(--sf);border:1.5px solid var(--br);border-radius:11px;padding:12px 15px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;text-align:left;transition:all .2s;}
+.qob.ok{border-color:#4cde80;background:rgba(76,222,128,.1);color:#4cde80;}
+.qob.no{border-color:var(--ac3);background:rgba(240,127,160,.1);color:var(--ac3);}
+.qres{background:var(--sf);border-radius:14px;padding:26px 16px;text-align:center;}
+.qres .qsc{font-family:'Playfair Display',serif;font-size:50px;color:var(--ac);line-height:1;}
+.pb{height:3px;background:var(--br);border-radius:3px;margin-bottom:14px;overflow:hidden;}
+.pf{height:100%;background:var(--ac);border-radius:3px;transition:width .3s;}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.wc{animation:fi .18s ease both;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--br);border-radius:4px;}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>✦ My Vocab</h1>
+  <p>중급 영어 단어장 · 10개씩 학습 · 발음 소리 지원</p>
+  <div class="tabs">
+    <button class="tb on" onclick="sw('vocab')">📖 단어장</button>
+    <button class="tb" onclick="sw('saved')">⭐ 저장 <span class="badge" id="sc0">0</span></button>
+    <button class="tb" onclick="sw('quiz')">✏️ 퀴즈</button>
+  </div>
+</div>
+
+<div class="pnl on" id="pnl-vocab">
+  <div class="ctrl">
+    <input type="search" id="srch" placeholder="단어 검색..." oninput="onSrch()">
+    <button class="btn a" onclick="doShuffle()">🔀 섞기</button>
+    <button class="btn g" onclick="nxt()">다음 10개 →</button>
+  </div>
+  <div class="pi">
+    <span id="plbl"></span>
+    <div class="pnav">
+      <button onclick="prv()" id="pbtn">← 이전</button>
+      <span class="pnd" id="pnd"></span>
+      <button onclick="nxt()" id="nbtn">다음 →</button>
+    </div>
+  </div>
+  <div class="wl" id="wl"></div>
+</div>
+
+<div class="pnl" id="pnl-saved">
+  <div class="svc"><button class="btn" onclick="clrAll()">🗑️ 전체 삭제</button></div>
+  <div class="svl" id="svl"></div>
+</div>
+
+<div class="pnl" id="pnl-quiz">
+  <div class="qc" id="qc"></div>
+</div>
+
+<script>
+const W=[
+{w:"abandon",pron:"/əˈbændən/",ko:"포기하다, 버리다",pos:"v",ph:false,
+ nu:"단순히 그만두는 것을 넘어, 책임·의무가 있음에도 완전히 등을 돌리는 뉘앙스. 후회나 절박함이 담겨 있을 때가 많다.",
+ syn:[{s:"give up",m:"노력을 멈추고 포기하다 (가장 일반적)"},{s:"desert",m:"사람이나 장소를 무책임하게 버리다"},{s:"forsake",m:"문어체. 사랑하는 대상을 저버리다"},{s:"relinquish",m:"권리나 통제권을 공식적으로 내려놓다"}],
+ rel:["abandonment (n.) 방치·유기","abandoned (adj.) 버려진","abandon all hope 모든 희망을 버리다"],
+ ex:[{en:"She <em>abandoned</em> her plan after the funding fell through.",ko:"자금이 끊기자 그녀는 계획을 포기했다."},{en:"They were forced to <em>abandon</em> the ship during the storm.",ko:"폭풍 중에 그들은 배를 버려야 했다."}]},
+{w:"abrupt",pron:"/əˈbrʌpt/",ko:"갑작스러운, 퉁명스러운",pos:"adj",ph:false,
+ nu:"예고 없이 갑자기 일어나는 변화, 또는 상대에게 충격을 줄 만큼 날카롭고 무뚝뚝한 말투. 사람에게 쓰면 무례함을 암시한다.",
+ syn:[{s:"sudden",m:"아무 예고 없이 갑자기 일어나는"},{s:"curt",m:"필요 이상으로 짧고 무례하게 말하는"},{s:"brusque",m:"퉁명스럽고 무뚝뚝한 태도"},{s:"unexpected",m:"예상하지 못한 (가장 일반적)"}],
+ rel:["abruptly (adv.) 갑자기","abruptness (n.) 갑작스러움"],
+ ex:[{en:"His <em>abrupt</em> departure shocked everyone in the room.",ko:"그의 갑작스러운 퇴장이 방 안의 모두를 충격에 빠뜨렸다."},{en:"She gave an <em>abrupt</em> reply and walked away.",ko:"그녀는 퉁명스럽게 대답하고 걸어갔다."}]},
+{w:"account for",pron:"/əˈkaʊnt fɔːr/",ko:"설명하다; ~를 차지하다",pos:"phr.v",ph:true,
+ nu:"두 핵심 의미: ①어떤 일이 왜 일어났는지 설명할 수 있다 ②전체 중 특정 비율·양을 구성한다. 문맥에 따라 전혀 다른 의미가 된다.",
+ syn:[{s:"explain",m:"원인이나 이유를 풀어서 설명하다"},{s:"constitute",m:"전체의 일부를 구성·차지하다"},{s:"represent",m:"수치·비율로 나타내다"},{s:"justify",m:"행동을 정당화하는 설명을 제공하다"}],
+ rel:["accountable (adj.) 책임이 있는","call to account 책임을 묻다","account (n.) 계정·설명"],
+ ex:[{en:"Can you <em>account for</em> your whereabouts last night?",ko:"어젯밤 당신의 행적을 설명할 수 있나요?"},{en:"Tourism <em>accounts for</em> 20% of the country's GDP.",ko:"관광업이 그 나라 GDP의 20%를 차지한다."}]},
+{w:"acknowledge",pron:"/əkˈnɒlɪdʒ/",ko:"인정하다, 감사를 표하다",pos:"v",ph:false,
+ nu:"사실·잘못·공헌 등을 공개적으로 인정하는 것. 단순히 '알다'보다 공식적·사회적 무게감이 있으며 감사 표시에도 쓴다.",
+ syn:[{s:"admit",m:"잘못이나 사실을 솔직히 인정하다"},{s:"recognize",m:"가치·업적을 공식적으로 인정하다"},{s:"concede",m:"자신에게 불리한 사실을 마지못해 인정하다"},{s:"credit",m:"공로·공헌을 누군가에게 돌리다"}],
+ rel:["acknowledgment (n.) 인정·감사","acknowledge receipt 수령을 확인하다"],
+ ex:[{en:"She <em>acknowledged</em> that she had made a mistake.",ko:"그녀는 실수를 했다고 인정했다."},{en:"The author <em>acknowledged</em> her editor's contribution.",ko:"저자는 편집자의 공헌에 감사를 표했다."}]},
+{w:"adapt to",pron:"/əˈdæpt tuː/",ko:"~에 적응하다",pos:"phr.v",ph:true,
+ nu:"새로운 환경·상황에 맞게 자신을 바꾸어가는 능동적 과정. 단순히 익숙해지는 것보다 적극적인 변화 의지가 담겨 있다.",
+ syn:[{s:"adjust to",m:"새 상황에 맞게 자신을 조정하다 (일반적)"},{s:"acclimate to",m:"새로운 환경·기후에 서서히 익숙해지다"},{s:"get used to",m:"구어체. 처음엔 낯설었다가 점차 익숙해지다"},{s:"conform to",m:"규칙·기준에 맞게 행동을 맞추다"}],
+ rel:["adaptation (n.) 적응·각색","adaptive (adj.) 적응력 있는","adapt A to B: A를 B에 맞게 변형하다"],
+ ex:[{en:"It took him months to <em>adapt to</em> the new environment.",ko:"새로운 환경에 적응하는 데 몇 달이 걸렸다."},{en:"Children <em>adapt to</em> change more easily than adults.",ko:"아이들은 어른보다 변화에 더 쉽게 적응한다."}]},
+{w:"advocate",pron:"/ˈædvəkeɪt/",ko:"지지하다; 옹호자",pos:"v/n",ph:false,
+ nu:"단순한 동의를 넘어, 공개적으로 목소리를 높여 지지·변호하는 행위. 사회운동·법정에서 자주 등장한다.",
+ syn:[{s:"champion",m:"적극 앞장서서 지지하다 (가장 강한 표현)"},{s:"support",m:"지지하다 (가장 일반적·중립적)"},{s:"promote",m:"더 널리 알려지도록 촉진·홍보하다"},{s:"proponent (n.)",m:"어떤 주장·입장의 지지자"}],
+ rel:["advocacy (n.) 옹호 활동","devil's advocate 반론을 위한 반대 의견 제시자"],
+ ex:[{en:"She <em>advocates</em> for stricter environmental regulations.",ko:"그녀는 더 엄격한 환경 규제를 지지한다."},{en:"He is a strong <em>advocate</em> of free speech.",ko:"그는 언론 자유의 강력한 옹호자이다."}]},
+{w:"aggravate",pron:"/ˈæɡrəveɪt/",ko:"악화시키다, 짜증나게 하다",pos:"v",ph:false,
+ nu:"이미 나쁜 상황을 더 나쁘게 만들거나 사람을 더욱 자극하는 것. 'make worse'의 격식체 표현.",
+ syn:[{s:"worsen",m:"상황이 더 나빠지게 하다 (가장 직접적)"},{s:"exacerbate",m:"문어체. 상황·감정을 심각하게 악화시키다"},{s:"irritate",m:"신경을 긁거나 약하게 화나게 하다"},{s:"inflame",m:"감정·상황을 불처럼 격렬하게 자극하다"}],
+ rel:["aggravation (n.) 악화","aggravating circumstances 가중 처벌 사유"],
+ ex:[{en:"Stress can <em>aggravate</em> many health conditions.",ko:"스트레스는 많은 건강 상태를 악화시킬 수 있다."},{en:"His constant interruptions <em>aggravated</em> everyone.",ko:"그의 계속되는 끼어들기가 모두를 짜증나게 했다."}]},
+{w:"alleviate",pron:"/əˈliːvieɪt/",ko:"완화하다, 덜다",pos:"v",ph:false,
+ nu:"고통·문제를 완전히 없애지는 못하지만 강도를 낮춰 견딜 만하게 만드는 것. 의료·사회 문제 맥락에서 자주 등장한다.",
+ syn:[{s:"ease",m:"긴장·통증·어려움을 부드럽게 줄이다"},{s:"relieve",m:"고통·압박감을 없애거나 크게 줄이다"},{s:"mitigate",m:"문어체. 나쁜 결과의 심각성을 줄이다"},{s:"reduce",m:"양이나 강도를 낮추다 (일반적)"}],
+ rel:["alleviation (n.) 완화","alleviate poverty 빈곤을 완화하다"],
+ ex:[{en:"This medication can <em>alleviate</em> the symptoms.",ko:"이 약은 증상을 완화할 수 있다."},{en:"The new policy aims to <em>alleviate</em> poverty.",ko:"새 정책은 빈곤을 완화하는 것을 목표로 한다."}]},
+{w:"ambiguous",pron:"/æmˈbɪɡjuəs/",ko:"모호한, 불분명한",pos:"adj",ph:false,
+ nu:"두 가지 이상의 해석이 가능하거나 의도가 명확하지 않은 상태. 의도적인 모호함과 실수로 인한 불명확함 모두에 쓴다.",
+ syn:[{s:"vague",m:"구체적이지 않고 흐릿한 (일상적)"},{s:"unclear",m:"의미나 의도가 분명하지 않은"},{s:"equivocal",m:"의도적으로 여러 해석이 가능하게 말하는"},{s:"obscure",m:"난해하거나 이해하기 어려운"}],
+ rel:["ambiguity (n.) 모호함","morally ambiguous 도덕적으로 모호한","ambiguously (adv.)"],
+ ex:[{en:"His <em>ambiguous</em> statement left everyone confused.",ko:"그의 모호한 발언이 모두를 혼란스럽게 했다."},{en:"The contract contained several <em>ambiguous</em> clauses.",ko:"계약서에는 몇 가지 모호한 조항이 있었다."}]},
+{w:"anticipate",pron:"/ænˈtɪsɪpeɪt/",ko:"예상하다, 기대하다",pos:"v",ph:false,
+ nu:"단순한 예측을 넘어 미리 생각하고 준비하는 뉘앙스. 부정적인 일을 예상할 때도, 긍정적인 일을 기대할 때도 쓴다.",
+ syn:[{s:"expect",m:"일어날 것이라고 생각하다 (일반적)"},{s:"foresee",m:"미래를 미리 내다보다 (통찰력 강조)"},{s:"predict",m:"근거를 토대로 미래를 예측하다"},{s:"look forward to",m:"기대하며 기다리다 (긍정적 뉘앙스)"}],
+ rel:["anticipation (n.) 기대·예상","in anticipation of ~를 예상하고","anticipated (adj.) 예상된"],
+ ex:[{en:"We did not <em>anticipate</em> such a strong reaction.",ko:"우리는 그렇게 강한 반응을 예상하지 못했다."},{en:"She <em>anticipates</em> the project will be finished by Friday.",ko:"그녀는 프로젝트가 금요일까지 완료될 것으로 예상한다."}]},
+{w:"apprehensive",pron:"/ˌæprɪˈhensɪv/",ko:"불안한, 걱정스러운",pos:"adj",ph:false,
+ nu:"아직 일어나지 않은 일에 대한 불안감·두려움. 특히 나쁜 결과가 올 것 같은 예감에서 오는 긴장감을 묘사한다.",
+ syn:[{s:"anxious",m:"미래에 대한 걱정·긴장감 (일반적)"},{s:"nervous",m:"특정 상황 앞에서 몸이 긴장된 상태"},{s:"uneasy",m:"마음이 편치 않고 어딘가 불편한"},{s:"worried",m:"구체적인 걱정거리가 있는 상태"}],
+ rel:["apprehension (n.) 불안","apprehensively (adv.) 불안하게"],
+ ex:[{en:"She was <em>apprehensive</em> about the surgery.",ko:"그녀는 수술에 대해 불안했다."},{en:"He felt <em>apprehensive</em> before his first job interview.",ko:"그는 첫 취업 면접 전에 불안했다."}]},
+{w:"articulate",pron:"/ɑːrˈtɪkjuleɪt/",ko:"명확하게 표현하다; 말을 잘하는",pos:"v/adj",ph:false,
+ nu:"복잡한 생각을 명료하고 유창하게 표현하는 능력. 형용사로 쓰이면 '말 잘하는 사람'을 칭찬할 때 쓰인다.",
+ syn:[{s:"express",m:"생각·감정을 말이나 글로 나타내다 (일반적)"},{s:"enunciate",m:"발음을 또렷하게 하다"},{s:"eloquent (adj.)",m:"설득력 있고 유창하게 말하는"},{s:"well-spoken (adj.)",m:"말씨가 세련되고 분명한"}],
+ rel:["articulation (n.) 표현","inarticulate (adj.) 말로 표현하기 힘든"],
+ ex:[{en:"She <em>articulated</em> her concerns clearly and calmly.",ko:"그녀는 우려 사항을 명확하고 차분하게 표현했다."},{en:"He is one of the most <em>articulate</em> speakers I know.",ko:"그는 내가 아는 가장 말을 잘하는 사람 중 하나이다."}]},
+{w:"back down",pron:"/bæk daʊn/",ko:"물러서다, 포기하다",pos:"phr.v",ph:true,
+ nu:"원래 주장하거나 위협하던 입장에서 압박을 받아 한발 물러서는 것. 대개 의지가 약하거나 설득된 것을 암시한다.",
+ syn:[{s:"retreat",m:"입장이나 위치에서 물러나다"},{s:"yield",m:"압박이나 압력에 굴복하다"},{s:"give in",m:"저항을 포기하고 양보하다"},{s:"concede",m:"상대 주장이 옳음을 인정하다"}],
+ rel:["stand one's ground (반의어) 입장을 고수하다","back down from a threat 위협을 철회하다"],
+ ex:[{en:"She refused to <em>back down</em> from her position.",ko:"그녀는 자신의 입장에서 물러서기를 거부했다."},{en:"He <em>backed down</em> when he realized he was wrong.",ko:"그는 자신이 틀렸다는 걸 깨닫고 물러섰다."}]},
+{w:"back out",pron:"/bæk aʊt/",ko:"약속을 어기다, 빠지다",pos:"phr.v",ph:true,
+ nu:"동의하거나 약속한 것에서 뒤늦게 빠져나오는 것. 신뢰를 저버리는 느낌이 강하며 주로 부정적 맥락에서 쓰인다.",
+ syn:[{s:"withdraw",m:"참여·약속에서 공식적으로 철수하다"},{s:"pull out",m:"계획이나 계약에서 빠져나오다"},{s:"renege",m:"약속을 어기다 (특히 계약·합의를)"},{s:"cancel",m:"계획·예약을 취소하다 (중립적)"}],
+ rel:["back out of a deal 거래에서 발을 빼다","last-minute back-out 막판 이탈"],
+ ex:[{en:"He <em>backed out</em> of the deal at the last minute.",ko:"그는 마지막 순간에 거래에서 빠졌다."},{en:"Don't <em>back out</em> now — everyone is counting on you.",ko:"지금 빠지면 안 돼 — 모두가 당신에게 의지하고 있어."}]},
+{w:"beneficial",pron:"/ˌbenɪˈfɪʃəl/",ko:"유익한, 이로운",pos:"adj",ph:false,
+ nu:"건강·상황·관계 등에 긍정적인 효과를 가져오는 것. 'good'보다 격식체이며 구체적인 이익이 있음을 강조한다.",
+ syn:[{s:"advantageous",m:"경쟁·비교에서 유리한 위치를 주는"},{s:"helpful",m:"도움이 되는 (일상적·중립적)"},{s:"favorable",m:"원하는 결과에 도움이 되는 조건인"},{s:"productive",m:"가시적인 결과나 성과를 내는"}],
+ rel:["benefit (n./v.) 이익·혜택","mutually beneficial 상호 이익이 되는"],
+ ex:[{en:"Regular exercise is <em>beneficial</em> for mental health.",ko:"규칙적인 운동은 정신 건강에 유익하다."},{en:"The new policy proved <em>beneficial</em> for small businesses.",ko:"새 정책은 소기업에 유익한 것으로 판명되었다."}]},
+{w:"blow up",pron:"/bləʊ ʌp/",ko:"폭발하다; 크게 화내다; 확대하다",pos:"phr.v",ph:true,
+ nu:"세 가지 의미: ①물리적 폭발 ②감정이 폭발해 갑자기 화내는 것 ③사진·문제 등이 크게 확대되는 것. 문맥에 따라 완전히 달리 해석된다.",
+ syn:[{s:"explode",m:"폭발하다 (물리적·감정적 모두)"},{s:"erupt",m:"감정이나 사건이 격렬하게 터져나오다"},{s:"escalate",m:"상황이 점점 심각하게 커지다"},{s:"enlarge",m:"사진·이미지를 확대하다"}],
+ rel:["blow-up (n.) 확대사진·폭발","blow the lid off 비밀을 폭로하다"],
+ ex:[{en:"The argument <em>blew up</em> into a full-scale conflict.",ko:"논쟁이 본격적인 갈등으로 확대되었다."},{en:"He <em>blew up</em> when he heard the news.",ko:"그는 그 소식을 듣고 크게 화를 냈다."}]},
+{w:"break down",pron:"/breɪk daʊn/",ko:"고장나다; 실패하다; 분해하다",pos:"phr.v",ph:true,
+ nu:"기계·협상·사람의 감정 등이 기능을 멈추거나 무너지는 것. 명사형 breakdown은 신체적·정신적 붕괴에도 쓴다.",
+ syn:[{s:"malfunction",m:"기계·시스템이 제대로 작동 안 하다"},{s:"collapse",m:"구조·체계가 완전히 무너지다"},{s:"fail",m:"기대한 기능을 하지 못하다 (일반적)"},{s:"decompose",m:"화학적으로 분해되다"}],
+ rel:["breakdown (n.) 고장·붕괴","nervous breakdown 신경 쇠약","break down barriers 장벽을 허물다"],
+ ex:[{en:"Negotiations <em>broke down</em> after two days.",ko:"협상이 이틀 후 결렬되었다."},{en:"Can you <em>break down</em> the steps for me?",ko:"단계별로 설명해 줄 수 있어요?"}]},
+{w:"bring about",pron:"/brɪŋ əˈbaʊt/",ko:"야기하다, 초래하다",pos:"phr.v",ph:true,
+ nu:"어떤 변화나 결과를 의도적으로 또는 필연적으로 일으키는 것. 'cause'보다 더 다양한 맥락에서 사용된다.",
+ syn:[{s:"cause",m:"결과를 초래하다 (일반적)"},{s:"produce",m:"특정 결과물을 만들어내다"},{s:"generate",m:"에너지·반응·아이디어를 만들어내다"},{s:"trigger",m:"특정 반응·사건의 방아쇠가 되다"}],
+ rel:["bring change about 변화를 일으키다","what brought this about? 무엇이 이것을 초래했나?"],
+ ex:[{en:"The discovery <em>brought about</em> major changes.",ko:"그 발견이 큰 변화를 초래했다."},{en:"What <em>brought about</em> this sudden decision?",ko:"무엇이 이 갑작스러운 결정을 초래했나요?"}]},
+{w:"bring up",pron:"/brɪŋ ʌp/",ko:"언급하다; 양육하다",pos:"phr.v",ph:true,
+ nu:"두 가지 의미: ①대화 중 화제를 꺼내거나 의견을 제시하다 ②자녀를 키우다. 어느 의미인지는 문맥에서 바로 드러난다.",
+ syn:[{s:"mention",m:"대화에서 가볍게 언급하다"},{s:"raise",m:"중요한 사안·주제를 공식적으로 제기하다"},{s:"nurture",m:"보살피고 키우다 (양육 의미)"},{s:"introduce",m:"새로운 주제를 처음 꺼내다"}],
+ rel:["upbringing (n.) 성장 환경","bring up a subject 주제를 꺼내다"],
+ ex:[{en:"She <em>brought up</em> an interesting point during the meeting.",ko:"그녀는 회의 중에 흥미로운 요점을 언급했다."},{en:"He was <em>brought up</em> in a small town in the countryside.",ko:"그는 시골의 작은 마을에서 자랐다."}]},
+{w:"call off",pron:"/kɔːl ɒf/",ko:"취소하다",pos:"phr.v",ph:true,
+ nu:"이미 계획되었거나 진행 중인 것을 중단·취소하는 것. 'cancel'의 구어체로, 이벤트·파업·약속 등에 자주 쓰인다.",
+ syn:[{s:"cancel",m:"예약·계획을 취소하다 (격식·비격식 모두)"},{s:"abandon",m:"진행 중인 것을 완전히 포기하다"},{s:"scrap",m:"구어체. 계획을 폐기하다"},{s:"terminate",m:"공식적으로 계약·관계를 종료하다"}],
+ rel:["call off a search 수색을 중단하다","call off the dogs 공격을 그만두게 하다"],
+ ex:[{en:"They had to <em>call off</em> the event due to bad weather.",ko:"악천후로 인해 행사를 취소해야 했다."},{en:"The strike was <em>called off</em> after the agreement.",ko:"합의 후 파업이 취소되었다."}]},
+{w:"carry out",pron:"/ˈkæri aʊt/",ko:"수행하다, 실행하다",pos:"phr.v",ph:true,
+ nu:"계획·지시·조사 등을 실제로 실행에 옮기는 것. 이미 결정된 것을 행동으로 옮기는 단계를 강조한다.",
+ syn:[{s:"execute",m:"계획·명령을 정확히 실행하다"},{s:"implement",m:"정책·변화를 실제로 도입·실행하다"},{s:"perform",m:"임무·역할을 수행하다"},{s:"conduct",m:"조사·실험·행사를 공식적으로 진행하다"}],
+ rel:["carry out orders 명령을 수행하다","carry out a threat 위협을 실행하다"],
+ ex:[{en:"The team <em>carried out</em> the plan successfully.",ko:"팀은 계획을 성공적으로 수행했다."},{en:"Police <em>carried out</em> a thorough investigation.",ko:"경찰은 철저한 조사를 수행했다."}]},
+{w:"catch up",pron:"/kætʃ ʌp/",ko:"따라잡다; 최신 정보를 얻다",pos:"phr.v",ph:true,
+ nu:"뒤처진 상황에서 앞서가는 것을 따라가거나, 놓쳤던 정보·소식을 파악하는 것. 'catch up with someone'은 오랜만에 소식을 나누는 뜻도 있다.",
+ syn:[{s:"keep pace",m:"같은 속도·수준을 유지하다"},{s:"reach",m:"목표·수준에 도달하다"},{s:"close the gap",m:"차이를 좁히다"},{s:"update",m:"최신 정보로 갱신하다"}],
+ rel:["let's catch up 오랜만에 이야기 나누자","catch up on sleep 밀린 잠을 자다"],
+ ex:[{en:"I need to <em>catch up</em> on the news I missed.",ko:"놓친 뉴스를 따라잡아야 한다."},{en:"She worked extra hours to <em>catch up</em> with her colleagues.",ko:"그녀는 동료들을 따라잡기 위해 추가 근무를 했다."}]},
+{w:"chronic",pron:"/ˈkrɒnɪk/",ko:"만성적인, 장기적인",pos:"adj",ph:false,
+ nu:"질병이나 문제가 오랜 기간 지속되거나 반복되는 것. 의학 용어에서 시작했지만 사회 문제 등에도 널리 쓰인다.",
+ syn:[{s:"persistent",m:"끊임없이 계속되는 (지속성 강조)"},{s:"long-term",m:"장기간에 걸친"},{s:"recurring",m:"주기적으로 반복되는"},{s:"habitual",m:"습관처럼 굳어진"}],
+ rel:["chronically (adv.) 만성적으로","chronic disease 만성 질환"],
+ ex:[{en:"He suffers from <em>chronic</em> back pain.",ko:"그는 만성 허리 통증을 앓고 있다."},{en:"Unemployment is a <em>chronic</em> problem in the region.",ko:"실업은 그 지역의 만성적인 문제이다."}]},
+{w:"collaborate",pron:"/kəˈlæbəreɪt/",ko:"협력하다, 공동 작업하다",pos:"v",ph:false,
+ nu:"단순한 도움을 넘어, 공동 목표를 위해 함께 작업하는 것. 동등한 파트너십의 뉘앙스가 강하다.",
+ syn:[{s:"cooperate",m:"공동 이익을 위해 함께 일하다 (더 일반적)"},{s:"team up",m:"구어체. 팀을 이루어 함께 하다"},{s:"work together",m:"가장 직접적인 표현"},{s:"partner",m:"공식 파트너로서 협력하다"}],
+ rel:["collaboration (n.) 협력","collaborative (adj.) 협력적인"],
+ ex:[{en:"The two companies <em>collaborated</em> on the research project.",ko:"두 회사가 연구 프로젝트에 협력했다."},{en:"Artists from around the world <em>collaborated</em> on the album.",ko:"전 세계 예술가들이 앨범에 공동 작업했다."}]},
+{w:"come across",pron:"/kʌm əˈkrɒs/",ko:"우연히 만나다; 인상을 주다",pos:"phr.v",ph:true,
+ nu:"두 의미: ①찾지 않았는데 우연히 발견하거나 마주치다 ②상대방에게 특정 인상·느낌을 주다. 'come across as'는 'seem'처럼 쓰인다.",
+ syn:[{s:"encounter",m:"우연히 또는 예상치 못하게 만나다"},{s:"stumble upon",m:"우연히 발견하다"},{s:"seem",m:"~처럼 보이다 (인상 의미에서)"},{s:"discover",m:"새로운 것을 발견하다"}],
+ rel:["come across well/badly 좋은/나쁜 인상을 주다","come across as rude 무례하게 보이다"],
+ ex:[{en:"I <em>came across</em> this article while browsing online.",ko:"온라인을 검색하다가 이 기사를 우연히 발견했다."},{en:"She <em>comes across</em> as very confident in interviews.",ko:"그녀는 인터뷰에서 매우 자신감 있어 보인다."}]},
+{w:"come up with",pron:"/kʌm ʌp wɪð/",ko:"생각해내다, 제안하다",pos:"phr.v",ph:true,
+ nu:"아이디어·해결책·설명 등을 머릿속에서 만들어내는 창의적 과정. 어렵거나 예상치 못한 것을 생각해냈을 때 많이 쓴다.",
+ syn:[{s:"devise",m:"교묘한 방법·계획을 고안하다"},{s:"invent",m:"완전히 새로운 것을 만들어내다"},{s:"propose",m:"공식적으로 제안하다"},{s:"generate",m:"여러 아이디어를 만들어내다"}],
+ rel:["come up with a plan 계획을 세우다","come up with an excuse 핑계를 대다"],
+ ex:[{en:"She <em>came up with</em> a brilliant solution.",ko:"그녀는 훌륭한 해결책을 생각해냈다."},{en:"Can anyone <em>come up with</em> a better idea?",ko:"더 좋은 아이디어를 생각해낼 수 있는 사람 있나요?"}]},
+{w:"cope with",pron:"/kəʊp wɪð/",ko:"대처하다, 극복하다",pos:"phr.v",ph:true,
+ nu:"어려운 상황이나 감정을 쓰러지지 않고 어떻게든 버텨내는 것. 완전히 해결하지 못하더라도 '감당하는' 것에 초점이 있다.",
+ syn:[{s:"deal with",m:"문제를 처리하다 (가장 일반적)"},{s:"handle",m:"상황을 통제·관리하다"},{s:"manage",m:"어렵지만 그럭저럭 해내다"},{s:"get through",m:"힘든 시기를 통과해나가다"}],
+ rel:["coping mechanism 대처 방법","cope with stress 스트레스를 감당하다"],
+ ex:[{en:"She found it hard to <em>cope with</em> the pressure.",ko:"그녀는 압박감을 감당하기 어렵다고 느꼈다."},{en:"How do you <em>cope with</em> stress at work?",ko:"직장에서의 스트레스에 어떻게 대처하나요?"}]},
+{w:"crucial",pron:"/ˈkruːʃəl/",ko:"중요한, 결정적인",pos:"adj",ph:false,
+ nu:"단순히 중요한 것이 아니라, 없으면 성공이 불가능한 결정적 요소. 'important'보다 훨씬 강도가 세다.",
+ syn:[{s:"critical",m:"없으면 실패할 만큼 핵심적인"},{s:"vital",m:"생존·성공에 절대적으로 필요한"},{s:"essential",m:"없어서는 안 될 필수적인"},{s:"pivotal",m:"전환점이 되는, 모든 것이 달린"}],
+ rel:["crucially (adv.) 결정적으로","a crucial moment 결정적 순간"],
+ ex:[{en:"This meeting is <em>crucial</em> for the future of the company.",ko:"이 회의는 회사의 미래에 매우 중요하다."},{en:"Timing is <em>crucial</em> in this kind of negotiation.",ko:"이런 협상에서는 타이밍이 결정적이다."}]},
+{w:"cut back on",pron:"/kʌt bæk ɒn/",ko:"줄이다, 삭감하다",pos:"phr.v",ph:true,
+ nu:"비용·소비·활동 등을 예전보다 적은 수준으로 낮추는 것. 완전히 없애는 것이 아니라 '줄이는' 것에 집중한다.",
+ syn:[{s:"reduce",m:"양·수준을 낮추다 (일반적)"},{s:"decrease",m:"수치·정도가 줄어들다"},{s:"scale back",m:"규모를 축소하다"},{s:"trim",m:"불필요한 부분을 잘라 줄이다"}],
+ rel:["cutback (n.) 삭감","cut back on spending 지출을 줄이다"],
+ ex:[{en:"The company had to <em>cut back on</em> spending.",ko:"회사는 지출을 줄여야 했다."},{en:"He decided to <em>cut back on</em> coffee for health reasons.",ko:"그는 건강상의 이유로 커피를 줄이기로 결심했다."}]},
+{w:"deal with",pron:"/diːl wɪð/",ko:"다루다, 처리하다",pos:"phr.v",ph:true,
+ nu:"문제·사람·상황을 주도적으로 처리하는 것. 'handle'과 거의 동의어지만 더 구어체적. '어떻게 대응하는가'에 초점.",
+ syn:[{s:"handle",m:"상황·물건을 통제하며 처리하다"},{s:"address",m:"문제를 공식적으로 다루다"},{s:"tackle",m:"어려운 문제를 적극적으로 덤벼들다"},{s:"manage",m:"어렵지만 어떻게든 처리해나가다"}],
+ rel:["it's a deal 합의됐다","deal with consequences 결과에 대처하다"],
+ ex:[{en:"The manager <em>dealt with</em> the complaint professionally.",ko:"매니저는 불만을 전문적으로 처리했다."},{en:"How do you <em>deal with</em> difficult clients?",ko:"어려운 고객을 어떻게 다루나요?"}]},
+{w:"deliberately",pron:"/dɪˈlɪbərətli/",ko:"의도적으로, 신중하게",pos:"adv",ph:false,
+ nu:"두 가지 뉘앙스: ①결과를 알면서 일부러 하는 것 ②서두르지 않고 천천히 신중하게 하는 것. 문맥에 따라 전혀 다른 인상을 준다.",
+ syn:[{s:"intentionally",m:"의도를 갖고 일부러"},{s:"purposely",m:"특정 목적을 가지고 의도적으로"},{s:"consciously",m:"의식적으로 알면서"},{s:"carefully",m:"조심스럽게, 신중하게"}],
+ rel:["deliberate (adj.) 의도적인","deliberation (n.) 숙고"],
+ ex:[{en:"He <em>deliberately</em> avoided eye contact.",ko:"그는 의도적으로 눈 맞춤을 피했다."},{en:"She spoke <em>deliberately</em>, choosing each word carefully.",ko:"그녀는 각 단어를 신중하게 선택하며 천천히 말했다."}]},
+{w:"demonstrate",pron:"/ˈdemənstreɪt/",ko:"보여주다, 입증하다",pos:"v",ph:false,
+ nu:"말이 아닌 행동·증거·실험으로 직접 보여주는 것. 단순한 설명이 아니라 '증명'의 뉘앙스가 강하다.",
+ syn:[{s:"show",m:"보여주다 (일반적)"},{s:"prove",m:"사실임을 논리나 증거로 입증하다"},{s:"illustrate",m:"예시·그림으로 설명하다"},{s:"exhibit",m:"공식적으로 전시하거나 드러내다"}],
+ rel:["demonstration (n.) 시위·시연","demonstrated ability 입증된 능력"],
+ ex:[{en:"The experiment <em>demonstrates</em> the theory clearly.",ko:"그 실험은 이론을 명확하게 입증한다."},{en:"She <em>demonstrated</em> how to use the software.",ko:"그녀는 소프트웨어 사용법을 보여주었다."}]},
+{w:"distinct",pron:"/dɪˈstɪŋkt/",ko:"뚜렷한, 별개의",pos:"adj",ph:false,
+ nu:"다른 것과 명확하게 구별되는 것. 'different'보다 차이가 더 뚜렷하고 인식하기 쉽다는 점을 강조한다.",
+ syn:[{s:"clear",m:"흐릿하지 않고 뚜렷한"},{s:"separate",m:"다른 것과 연결되지 않은 별개의"},{s:"definite",m:"의심의 여지 없이 확실한"},{s:"notable",m:"주목할 만큼 눈에 띄는"}],
+ rel:["distinction (n.) 구별·차이","distinctive (adj.) 독특한","distinctly (adv.) 뚜렷이"],
+ ex:[{en:"There is a <em>distinct</em> difference between the two approaches.",ko:"두 접근 방식에는 뚜렷한 차이가 있다."},{en:"Each region has its own <em>distinct</em> culture.",ko:"각 지역마다 고유한 문화가 있다."}]},
+{w:"elaborate",pron:"/ɪˈlæbərət/",ko:"자세히 설명하다; 정교한",pos:"v/adj",ph:false,
+ nu:"동사로는 간략히 말한 것에 살을 붙여 더 상세히 설명하는 것. 형용사로는 복잡하고 섬세하게 만들어진 것을 묘사한다.",
+ syn:[{s:"expand on",m:"이미 한 말을 더 자세히 덧붙이다"},{s:"detail",m:"세부 사항을 제공하다"},{s:"intricate (adj.)",m:"복잡하고 세밀하게 얽힌"},{s:"complex (adj.)",m:"여러 요소로 구성된 복잡한"}],
+ rel:["elaboration (n.) 상세한 설명","elaborate scheme 정교한 계획"],
+ ex:[{en:"Could you <em>elaborate</em> on that point?",ko:"그 점에 대해 좀 더 자세히 설명해 줄 수 있나요?"},{en:"The room was decorated with an <em>elaborate</em> design.",ko:"방은 정교한 디자인으로 장식되었다."}]},
+{w:"emerge",pron:"/ɪˈmɜːrdʒ/",ko:"나타나다, 부상하다",pos:"v",ph:false,
+ nu:"숨겨져 있거나 알려지지 않았던 것이 점차 모습을 드러내는 것. 또는 어려운 상황에서 빠져나와 새로운 위치를 차지하는 것.",
+ syn:[{s:"appear",m:"모습을 드러내다 (일반적)"},{s:"arise",m:"상황·문제가 갑자기 생겨나다"},{s:"surface",m:"수면 위로 떠오르듯 나타나다"},{s:"come out",m:"숨어있다가 밖으로 나오다"}],
+ rel:["emergence (n.) 출현","emerging (adj.) 신흥의","emerge victorious 승리하며 나오다"],
+ ex:[{en:"New information has <em>emerged</em> about the incident.",ko:"그 사건에 대한 새로운 정보가 나타났다."},{en:"She <em>emerged</em> as a strong leader during the crisis.",ko:"그녀는 위기 동안 강한 리더로 부상했다."}]},
+{w:"emphasize",pron:"/ˈemfəsaɪz/",ko:"강조하다",pos:"v",ph:false,
+ nu:"여러 것 중에서 특별히 중요하다는 것을 부각시키는 것. 말의 강도를 높이거나 반복으로 주목하게 만든다.",
+ syn:[{s:"stress",m:"중요성을 강하게 표현하다"},{s:"highlight",m:"눈에 띄게 부각시키다"},{s:"underline",m:"주요 내용에 밑줄을 긋듯 강조하다"},{s:"accentuate",m:"특정 부분을 더 두드러지게 하다"}],
+ rel:["emphasis (n.) 강조","emphatic (adj.) 단호한","place emphasis on ~에 중점을 두다"],
+ ex:[{en:"The report <em>emphasizes</em> the importance of teamwork.",ko:"보고서는 팀워크의 중요성을 강조한다."},{en:"She <em>emphasized</em> the need for caution.",ko:"그녀는 주의 필요성을 강조했다."}]},
+{w:"end up",pron:"/end ʌp/",ko:"결국 ~하게 되다",pos:"phr.v",ph:true,
+ nu:"계획하지 않았거나 예상과 다른 결과로 마무리되는 것. 약간의 체념이나 놀라움이 담긴 경우가 많다.",
+ syn:[{s:"wind up",m:"구어체. 결국 ~로 끝나다"},{s:"turn out",m:"결과적으로 ~하게 판명되다"},{s:"eventually become",m:"마침내 ~이 되다"},{s:"land up",m:"영국 영어. 결국 ~에 처하게 되다"}],
+ rel:["end up doing ~하게 되다","end up nowhere 아무 성과 없이 끝나다"],
+ ex:[{en:"We <em>ended up</em> staying at a different hotel.",ko:"우리는 결국 다른 호텔에 묵게 되었다."},{en:"He <em>ended up</em> apologizing to everyone.",ko:"그는 결국 모든 사람에게 사과하게 되었다."}]},
+{w:"exceed",pron:"/ɪkˈsiːd/",ko:"초과하다, 능가하다",pos:"v",ph:false,
+ nu:"한도·기대·수준을 넘어서는 것. 긍정적 의미(기대를 초과 달성)와 부정적 의미(한도를 넘다) 모두 가능하다.",
+ syn:[{s:"surpass",m:"기존 기록이나 기대를 뛰어넘다"},{s:"go beyond",m:"정해진 범위 밖으로 나가다"},{s:"outstrip",m:"경쟁에서 훨씬 앞서나가다"},{s:"top",m:"구어체. 최고 기록을 넘어서다"}],
+ rel:["excess (n.) 초과","excessive (adj.) 과도한","exceed expectations 기대를 초과하다"],
+ ex:[{en:"Sales <em>exceeded</em> expectations this quarter.",ko:"이번 분기 판매가 기대를 초과했다."},{en:"Do not <em>exceed</em> the recommended dose.",ko:"권장 용량을 초과하지 마십시오."}]},
+{w:"figure out",pron:"/ˈfɪɡər aʊt/",ko:"이해하다, 알아내다",pos:"phr.v",ph:true,
+ nu:"복잡하거나 모르는 것을 생각하고 분석해서 이해하거나 해결책을 찾아내는 것. 노력이 들었다는 뉘앙스가 있다.",
+ syn:[{s:"work out",m:"생각해서 답이나 해결책을 찾다"},{s:"determine",m:"조사·분석으로 사실을 밝히다"},{s:"solve",m:"문제의 답을 구하다"},{s:"understand",m:"의미를 이해하다"}],
+ rel:["go figure 이해 불가다 (구어)","figure (n.) 수치·인물"],
+ ex:[{en:"I can't <em>figure out</em> how this machine works.",ko:"이 기계가 어떻게 작동하는지 모르겠다."},{en:"She finally <em>figured out</em> the answer.",ko:"그녀는 마침내 답을 알아냈다."}]},
+{w:"foster",pron:"/ˈfɒstər/",ko:"육성하다, 장려하다",pos:"v",ph:false,
+ nu:"재능·환경·관계 등이 잘 자랄 수 있도록 돌보고 키우는 것. 직접 만들어내는 것이 아니라 성장을 돕는 것에 초점.",
+ syn:[{s:"encourage",m:"용기를 북돋아 더 하도록 자극하다"},{s:"promote",m:"더 널리 알리거나 발전시키다"},{s:"nurture",m:"애정을 갖고 조심스럽게 키우다"},{s:"cultivate",m:"의도적으로 개발·육성하다"}],
+ rel:["foster care 위탁 양육","foster a culture of ~의 문화를 만들다"],
+ ex:[{en:"The program aims to <em>foster</em> creativity in students.",ko:"그 프로그램은 학생들의 창의력을 육성하는 것을 목표로 한다."},{en:"Good leadership <em>fosters</em> trust within a team.",ko:"좋은 리더십은 팀 내 신뢰를 장려한다."}]},
+{w:"get along with",pron:"/ɡet əˈlɒŋ wɪð/",ko:"잘 지내다",pos:"phr.v",ph:true,
+ nu:"누군가와 갈등 없이 편안하게 지내는 관계를 묘사한다. 특별히 친하지 않아도 마찰 없이 지내면 쓸 수 있다.",
+ syn:[{s:"be on good terms",m:"좋은 관계를 유지하다"},{s:"hit it off",m:"처음 만났는데 바로 잘 맞다"},{s:"coexist well",m:"갈등 없이 함께 존재하다"},{s:"relate well",m:"상대방과 공감·소통이 잘 되다"}],
+ rel:["get along (without object) 잘 해나가다","get along without ~없이 해나가다"],
+ ex:[{en:"Do you <em>get along with</em> your roommate?",ko:"룸메이트와 잘 지내나요?"},{en:"She <em>gets along with</em> almost everyone she meets.",ko:"그녀는 만나는 거의 모든 사람과 잘 지낸다."}]},
+{w:"get over",pron:"/ɡet ˈəʊvər/",ko:"극복하다, 회복하다",pos:"phr.v",ph:true,
+ nu:"질병·충격·슬픔 등에서 벗어나 다시 정상으로 돌아오는 과정. 시간이 걸린다는 뉘앙스가 담겨 있다.",
+ syn:[{s:"recover from",m:"병·충격에서 회복하다"},{s:"overcome",m:"어려움을 이겨내다"},{s:"bounce back",m:"역경에서 빠르게 회복하다"},{s:"move past",m:"나쁜 기억을 뒤로하고 나아가다"}],
+ rel:["get over a cold 감기가 낫다","I can't get over it 믿기지 않는다 (구어)"],
+ ex:[{en:"It took her a long time to <em>get over</em> the breakup.",ko:"그녀는 이별을 극복하는 데 오랜 시간이 걸렸다."},{en:"He still hasn't <em>gotten over</em> his cold.",ko:"그는 아직도 감기가 낫지 않았다."}]},
+{w:"give in",pron:"/ɡɪv ɪn/",ko:"굴복하다, 양보하다",pos:"phr.v",ph:true,
+ nu:"저항하다가 결국 포기하고 상대의 요구·압박을 받아들이는 것. 'give up'보다 더 외부 압력에 의한 패배의 느낌이 강하다.",
+ syn:[{s:"yield",m:"압박에 굴복해 물러서다"},{s:"surrender",m:"완전히 항복하다"},{s:"concede",m:"상대가 옳음을 인정하고 양보하다"},{s:"back down",m:"주장에서 한발 물러서다"}],
+ rel:["give in to temptation 유혹에 굴복하다","give in to pressure 압박에 굴하다"],
+ ex:[{en:"Don't <em>give in</em> to pressure.",ko:"압박에 굴복하지 마세요."},{en:"She finally <em>gave in</em> and agreed to the terms.",ko:"그녀는 결국 굴복하여 조건에 동의했다."}]},
+{w:"go through",pron:"/ɡəʊ θruː/",ko:"겪다; 검토하다; 통과하다",pos:"phr.v",ph:true,
+ nu:"힘든 경험을 겪거나, 서류·내용을 꼼꼼히 검토하거나, 어떤 과정을 통과하는 세 가지 의미. 가장 많이 쓰이는 구동사 중 하나.",
+ syn:[{s:"experience",m:"어떤 상황을 직접 겪다"},{s:"endure",m:"힘든 것을 참고 견디다"},{s:"review",m:"내용을 검토하다"},{s:"undergo",m:"공식적 과정을 거치다"}],
+ rel:["go through hardship 어려움을 겪다","go through the motions 형식적으로만 하다"],
+ ex:[{en:"She went through a lot during those years.",ko:"그 시절 그녀는 많은 것을 겪었다."},{en:"Let's <em>go through</em> the report together.",ko:"보고서를 함께 검토해 봅시다."}]},
+{w:"hold back",pron:"/həʊld bæk/",ko:"억제하다, 저지하다",pos:"phr.v",ph:true,
+ nu:"감정·정보·사람·진행을 막거나 억누르는 것. 스스로 자신을 억제하거나 다른 사람의 발전을 방해하는 경우 모두 쓴다.",
+ syn:[{s:"restrain",m:"행동이나 감정을 제어하다"},{s:"suppress",m:"느낌·반응을 억압하다"},{s:"hinder",m:"발전이나 행동을 방해하다"},{s:"withhold",m:"정보·감정을 감추거나 주지 않다"}],
+ rel:["hold back tears 눈물을 참다","nothing held back 거침없이"],
+ ex:[{en:"She <em>held back</em> her tears during the speech.",ko:"그녀는 연설 중에 눈물을 참았다."},{en:"Don't <em>hold back</em> — tell me what you really think.",ko:"억제하지 마세요 — 정말 어떻게 생각하는지 말해 주세요."}]},
+{w:"imply",pron:"/ɪmˈplaɪ/",ko:"암시하다, 내포하다",pos:"v",ph:false,
+ nu:"직접 말하지 않지만 말 속에 그 의미가 담겨있는 것. 'infer'(듣는 쪽이 결론을 내림)와 혼동하기 쉬우나 'imply'는 말하는 쪽이 암시하는 것.",
+ syn:[{s:"suggest",m:"가능성을 넌지시 제시하다"},{s:"hint",m:"간접적으로 작은 단서를 주다"},{s:"indicate",m:"어떤 사실을 가리키거나 나타내다"},{s:"insinuate",m:"나쁜 의도로 간접적으로 내비치다"}],
+ rel:["implication (n.) 함의·암시","implicit (adj.) 암묵적인","imply vs infer 화자 vs 청자"],
+ ex:[{en:"What are you <em>implying</em> by that remark?",ko:"그 발언으로 무엇을 암시하는 건가요?"},{en:"Silence sometimes <em>implies</em> consent.",ko:"침묵은 때로 동의를 암시한다."}]},
+{w:"inevitable",pron:"/ɪnˈevɪtəbəl/",ko:"피할 수 없는, 불가피한",pos:"adj",ph:false,
+ nu:"어떠한 노력으로도 막을 수 없는 결과. 체념보다는 사실에 대한 인식의 뉘앙스로 쓰이며 긍정적 일에도 쓸 수 있다.",
+ syn:[{s:"unavoidable",m:"피해갈 수 없는"},{s:"certain",m:"확실히 일어날"},{s:"inescapable",m:"도망칠 수 없는"},{s:"destined",m:"운명적으로 정해진"}],
+ rel:["inevitably (adv.) 불가피하게","inevitability (n.) 불가피성"],
+ ex:[{en:"Change is <em>inevitable</em>.",ko:"변화는 불가피하다."},{en:"It was <em>inevitable</em> that the two would clash.",ko:"두 사람이 충돌하는 것은 피할 수 없는 일이었다."}]},
+{w:"insight",pron:"/ˈɪnsaɪt/",ko:"통찰력, 이해",pos:"n",ph:false,
+ nu:"표면 너머를 꿰뚫어 보는 깊은 이해. 단순히 아는 것이 아니라 핵심을 꿰뚫는 능력이나 그로 인한 깊은 깨달음.",
+ syn:[{s:"understanding",m:"상황·개념에 대한 이해"},{s:"perception",m:"사물을 인식하고 해석하는 능력"},{s:"wisdom",m:"경험·지식에서 나오는 지혜"},{s:"awareness",m:"중요한 것을 인식하고 있는 상태"}],
+ rel:["insightful (adj.) 통찰력 있는","gain insight into ~에 대한 통찰을 얻다"],
+ ex:[{en:"The book provides valuable <em>insight</em> into human behavior.",ko:"그 책은 인간 행동에 대한 귀중한 통찰력을 제공한다."},{en:"Her <em>insights</em> helped us understand the problem.",ko:"그녀의 통찰이 우리가 문제를 이해하는 데 도움을 주었다."}]},
+{w:"keep up with",pron:"/kiːp ʌp wɪð/",ko:"~을 따라가다, 유지하다",pos:"phr.v",ph:true,
+ nu:"빠르게 변하거나 앞서가는 것을 뒤처지지 않고 따라가는 것. 기술·지식·사람 등에 모두 쓸 수 있다.",
+ syn:[{s:"maintain pace",m:"같은 속도를 유지하다"},{s:"stay current",m:"최신 상태를 유지하다"},{s:"match",m:"수준이나 속도를 맞추다"},{s:"track",m:"추적하며 놓치지 않다"}],
+ rel:["keep up appearances 겉모습을 유지하다","keep up the good work 계속 잘 하다"],
+ ex:[{en:"It's hard to <em>keep up with</em> the latest technology.",ko:"최신 기술을 따라가기가 어렵다."},{en:"She works hard to <em>keep up with</em> her classmates.",ko:"그녀는 반 친구들을 따라가기 위해 열심히 공부한다."}]},
+{w:"let down",pron:"/let daʊn/",ko:"실망시키다",pos:"phr.v",ph:true,
+ nu:"기대나 신뢰에 미치지 못해 상대방을 실망시키는 것. 'disappoint'의 구어체로 감정적 무게감이 더 강하다.",
+ syn:[{s:"disappoint",m:"기대에 부응하지 못하다"},{s:"fail",m:"의무·기대를 저버리다"},{s:"discourage",m:"의기소침하게 만들다"},{s:"fall short",m:"기대에 못 미치다"}],
+ rel:["letdown (n.) 실망","let the team down 팀을 실망시키다"],
+ ex:[{en:"I don't want to <em>let you down</em>.",ko:"당신을 실망시키고 싶지 않아요."},{en:"He felt <em>let down</em> by his team's performance.",ko:"그는 팀의 성과에 실망했다."}]},
+{w:"look into",pron:"/lʊk ˈɪntə/",ko:"조사하다, 알아보다",pos:"phr.v",ph:true,
+ nu:"어떤 사안을 더 깊이 파고들어 사실을 밝히려는 과정. 'investigate'의 구어체이며 공식·비공식 상황 모두에 쓸 수 있다.",
+ syn:[{s:"investigate",m:"체계적으로 조사하다 (격식)"},{s:"examine",m:"면밀히 살피다"},{s:"explore",m:"가능성이나 정보를 탐색하다"},{s:"research",m:"자료를 조사하다"}],
+ rel:["look into a matter 사안을 조사하다"],
+ ex:[{en:"The police are <em>looking into</em> the matter.",ko:"경찰이 그 사안을 조사하고 있다."},{en:"I'll <em>look into</em> the issue and get back to you.",ko:"문제를 알아보고 다시 연락드리겠습니다."}]},
+{w:"make up for",pron:"/meɪk ʌp fɔːr/",ko:"보충하다, 만회하다",pos:"phr.v",ph:true,
+ nu:"부족하거나 잘못된 것을 다른 방법으로 채우거나 만회하는 것. 죄책감이나 책임감이 동반되는 경우가 많다.",
+ syn:[{s:"compensate for",m:"부족함·잘못을 보상하다"},{s:"offset",m:"부정적인 것을 상쇄하다"},{s:"atone for",m:"잘못을 뉘우치고 보상하다"},{s:"recover",m:"잃어버린 것을 되찾다"}],
+ rel:["make it up to someone 누군가에게 보상하다","make up for lost time 밀린 것을 만회하다"],
+ ex:[{en:"He worked overtime to <em>make up for</em> lost time.",ko:"그는 잃어버린 시간을 만회하기 위해 야근했다."},{en:"Nothing can <em>make up for</em> such a loss.",ko:"그런 손실을 보충할 수 있는 것은 없다."}]},
+{w:"mitigate",pron:"/ˈmɪtɪɡeɪt/",ko:"완화하다, 경감하다",pos:"v",ph:false,
+ nu:"나쁜 결과나 해로운 영향을 완전히 막지는 못해도 심각성을 줄이는 것. 더 격식체이며 위험·피해·처벌 등에 자주 쓴다.",
+ syn:[{s:"alleviate",m:"고통·어려움의 강도를 낮추다"},{s:"lessen",m:"정도나 양을 줄이다"},{s:"reduce",m:"수치나 수준을 낮추다 (일반적)"},{s:"ease",m:"부드럽게 완화하다"}],
+ rel:["mitigation (n.) 완화","mitigating circumstances 정상 참작 사유"],
+ ex:[{en:"Steps were taken to <em>mitigate</em> the damage.",ko:"피해를 완화하기 위한 조치가 취해졌다."},{en:"Vaccination helps <em>mitigate</em> the spread of disease.",ko:"예방접종은 질병 확산을 완화하는 데 도움이 된다."}]},
+{w:"nuance",pron:"/ˈnjuːɑːns/",ko:"미묘한 차이, 뉘앙스",pos:"n",ph:false,
+ nu:"표면적으로는 비슷해 보이지만 자세히 들여다보면 다른 미묘한 의미의 차이. 언어·감정·예술 등에서 매우 중요한 개념.",
+ syn:[{s:"subtlety",m:"작지만 중요한 차이나 특성"},{s:"shade",m:"색깔처럼 미묘한 의미의 변화"},{s:"distinction",m:"서로 다른 두 가지를 구별하는 지점"},{s:"gradation",m:"단계적으로 변하는 미묘한 차이"}],
+ rel:["nuanced (adj.) 미묘한 차이를 담은","a nuanced argument 미묘한 논거"],
+ ex:[{en:"Good writers pay attention to <em>nuance</em>.",ko:"훌륭한 작가는 미묘한 차이에 주의를 기울인다."},{en:"There are many <em>nuances</em> to consider in translation.",ko:"번역에서는 고려해야 할 뉘앙스가 많다."}]},
+{w:"pay off",pron:"/peɪ ɒf/",ko:"성과를 거두다; 빚을 갚다",pos:"phr.v",ph:true,
+ nu:"투자한 시간·노력·돈이 기대했던 결과를 가져오는 것. 또는 빌린 돈을 모두 상환하는 것. 두 의미 모두 '결실'의 공통 뉘앙스.",
+ syn:[{s:"succeed",m:"목표를 이루다"},{s:"yield results",m:"노력이 결과를 낳다"},{s:"settle",m:"빚·분쟁을 완전히 해결하다"},{s:"bear fruit",m:"노력이 결실을 맺다 (격식)"}],
+ rel:["payoff (n.) 보상·뇌물","hard work pays off 노력은 결실을 맺는다"],
+ ex:[{en:"All that hard work finally <em>paid off</em>.",ko:"그 모든 노력이 마침내 성과를 거두었다."},{en:"She worked hard to <em>pay off</em> her student loans.",ko:"그녀는 학자금 대출을 갚기 위해 열심히 일했다."}]},
+{w:"persistent",pron:"/pəˈsɪstənt/",ko:"끈질긴, 지속적인",pos:"adj",ph:false,
+ nu:"어려움이나 반대에도 불구하고 계속되는 것. 사람에게 쓰면 긍정적인 끈기를, 문제나 증상에 쓰면 사라지지 않는 골치 아픈 것을 가리킨다.",
+ syn:[{s:"tenacious",m:"끈질기게 목표를 붙드는"},{s:"relentless",m:"한 번도 쉬지 않고 계속되는"},{s:"constant",m:"변함없이 지속되는"},{s:"stubborn",m:"고집스럽게 변하지 않는"}],
+ rel:["persistence (n.) 끈기","persistently (adv.) 끈질기게"],
+ ex:[{en:"Her <em>persistent</em> efforts paid off eventually.",ko:"그녀의 끈질긴 노력이 결국 성과를 거두었다."},{en:"He has a <em>persistent</em> cough.",ko:"그는 지속적인 기침이 있다."}]},
+{w:"profound",pron:"/prəˈfaʊnd/",ko:"깊은, 심오한",pos:"adj",ph:false,
+ nu:"표면적이지 않고 깊은 수준에서 중요하거나 영향력 있는 것. 감정·사상·영향 등 다양한 것의 깊이를 표현한다.",
+ syn:[{s:"deep",m:"표면 너머 깊은 수준의"},{s:"significant",m:"중요한 의미를 지닌"},{s:"intense",m:"강도가 매우 강한"},{s:"thorough",m:"완전하고 철저한"}],
+ rel:["profoundly (adv.) 깊이","profundity (n.) 심오함","a profound effect 심오한 영향"],
+ ex:[{en:"The speech had a <em>profound</em> impact on the audience.",ko:"그 연설은 청중에게 깊은 영향을 미쳤다."},{en:"She has a <em>profound</em> understanding of the subject.",ko:"그녀는 그 주제에 대해 심오한 이해를 가지고 있다."}]},
+{w:"reluctant",pron:"/rɪˈlʌktənt/",ko:"내키지 않는, 마지못한",pos:"adj",ph:false,
+ nu:"무언가를 하고 싶지 않지만 해야 할 수도 있는 상황에서의 저항감. 완전한 거절이 아니라 '하기 싫지만 할 수도 있다'는 뉘앙스.",
+ syn:[{s:"unwilling",m:"하고 싶지 않은 (더 단호)"},{s:"hesitant",m:"망설이며 결정 못 하는"},{s:"disinclined",m:"~할 마음이 없는 (격식)"},{s:"loath",m:"매우 내키지 않는"}],
+ rel:["reluctance (n.) 내키지 않음","reluctantly (adv.) 마지못해"],
+ ex:[{en:"She was <em>reluctant</em> to share her personal information.",ko:"그녀는 개인 정보를 공유하기를 꺼렸다."},{en:"He gave a <em>reluctant</em> nod of approval.",ko:"그는 마지못해 고개를 끄덕여 동의했다."}]},
+{w:"retain",pron:"/rɪˈteɪn/",ko:"유지하다, 보유하다",pos:"v",ph:false,
+ nu:"이미 가지고 있는 것을 잃지 않고 계속 유지하는 것. 지식·직원·특성·법적 권리 등에 쓰인다.",
+ syn:[{s:"keep",m:"계속 가지고 있다 (일반적)"},{s:"maintain",m:"상태나 수준을 유지하다"},{s:"preserve",m:"변질되지 않도록 보존하다"},{s:"hold onto",m:"놓지 않고 계속 붙들다"}],
+ rel:["retention (n.) 보유·기억력","retain information 정보를 기억하다"],
+ ex:[{en:"The company wants to <em>retain</em> its best employees.",ko:"그 회사는 최고의 직원들을 유지하고 싶어한다."},{en:"She managed to <em>retain</em> her composure.",ko:"그녀는 침착함을 유지하는 데 성공했다."}]},
+{w:"run out of",pron:"/rʌn aʊt əv/",ko:"~이 바닥나다, 다 쓰다",pos:"phr.v",ph:true,
+ nu:"공급이나 재고가 완전히 소진되어 더 이상 없는 상태. 시간·에너지·인내심 등 추상적인 것에도 쓸 수 있다.",
+ syn:[{s:"exhaust",m:"완전히 소진하다"},{s:"deplete",m:"자원·재고를 고갈시키다"},{s:"use up",m:"남김없이 다 쓰다"},{s:"be out of",m:"현재 재고가 없는 상태"}],
+ rel:["run out of time 시간이 다 되다","run out of patience 인내심이 바닥나다"],
+ ex:[{en:"We've <em>run out of</em> coffee.",ko:"커피가 다 떨어졌어요."},{en:"The project <em>ran out of</em> funding.",ko:"프로젝트 자금이 바닥났다."}]},
+{w:"significant",pron:"/sɪɡˈnɪfɪkənt/",ko:"중요한, 상당한",pos:"adj",ph:false,
+ nu:"단순히 중요한 것 이상으로, 눈에 띌 만큼 크거나 의미 있는 것. 통계 분야에서는 우연이 아닌 의미 있는 결과를 가리킨다.",
+ syn:[{s:"important",m:"중요한 (일반적)"},{s:"major",m:"주요한, 규모가 큰"},{s:"notable",m:"주목할 만한"},{s:"substantial",m:"상당한 정도나 양의"}],
+ rel:["significance (n.) 중요성","significantly (adv.) 상당히","statistically significant 통계적으로 유의미한"],
+ ex:[{en:"There has been a <em>significant</em> improvement.",ko:"상당한 개선이 있었다."},{en:"The discovery is <em>significant</em> for science.",ko:"그 발견은 과학에 중요한 의미를 지닌다."}]},
+{w:"stand out",pron:"/stænd aʊt/",ko:"두드러지다, 돋보이다",pos:"phr.v",ph:true,
+ nu:"주변과 비교했을 때 특히 눈에 띄거나 뛰어난 것. 외모·능력·품질 등 어디서든 특별히 눈길을 끄는 상황에 쓴다.",
+ syn:[{s:"be distinctive",m:"독특한 특성으로 구별되다"},{s:"shine",m:"재능이나 품질이 빛나다"},{s:"excel",m:"다른 것보다 훨씬 뛰어나다"},{s:"attract attention",m:"눈길을 끌다"}],
+ rel:["standout (n./adj.) 두드러진 것·사람","stand out from the crowd 무리 중에서 두드러지다"],
+ ex:[{en:"Her work always <em>stands out</em>.",ko:"그녀의 작품은 항상 두드러진다."},{en:"He <em>stood out</em> from the other candidates.",ko:"그는 다른 후보자들 중에서 돋보였다."}]},
+{w:"trigger",pron:"/ˈtrɪɡər/",ko:"유발하다; 방아쇠",pos:"v/n",ph:false,
+ nu:"어떤 반응·사건·증상이 시작되게 만드는 원인. '방아쇠를 당기다'는 이미지처럼 즉각적이고 연쇄적인 반응을 일으킨다.",
+ syn:[{s:"cause",m:"결과를 초래하다 (일반적)"},{s:"prompt",m:"행동·반응을 촉구하다"},{s:"initiate",m:"과정을 시작하게 하다"},{s:"spark",m:"불꽃처럼 반응을 일으키다"}],
+ rel:["trigger warning 내용 경고","trigger a response 반응을 유발하다"],
+ ex:[{en:"Stress can <em>trigger</em> a migraine.",ko:"스트레스는 편두통을 유발할 수 있다."},{en:"That comment <em>triggered</em> a heated debate.",ko:"그 발언이 격렬한 토론을 유발했다."}]},
+{w:"undermine",pron:"/ˌʌndərˈmaɪn/",ko:"약화시키다, 훼손하다",pos:"v",ph:false,
+ nu:"몰래 또는 서서히 토대를 허물어 약하게 만드는 것. 'weaken'보다 더 교묘하고 의도적인 뉘앙스가 강하다.",
+ syn:[{s:"weaken",m:"힘이나 영향력을 약하게 하다"},{s:"sabotage",m:"의도적으로 방해하거나 파괴하다"},{s:"erode",m:"서서히 갉아먹듯 약화시키다"},{s:"subvert",m:"체제·권위를 전복시키려 하다"}],
+ rel:["undermine confidence 자신감을 약화시키다","undermine authority 권위를 훼손하다"],
+ ex:[{en:"His comments <em>undermined</em> her confidence.",ko:"그의 발언이 그녀의 자신감을 약화시켰다."},{en:"Corruption <em>undermines</em> public trust.",ko:"부패는 공공의 신뢰를 훼손한다."}]},
+{w:"vital",pron:"/ˈvaɪtəl/",ko:"필수적인, 중요한",pos:"adj",ph:false,
+ nu:"라틴어 vita(생명)에서 유래. 없으면 기능·생존이 불가능할 만큼 절대적으로 필요한 것. 'important'보다 훨씬 강하다.",
+ syn:[{s:"essential",m:"없어서는 안 되는"},{s:"critical",m:"없으면 실패할 핵심적인"},{s:"crucial",m:"결정적으로 중요한"},{s:"indispensable",m:"대체할 수 없이 필수적인"}],
+ rel:["vitality (n.) 활력","vitally (adv.) 매우 중요하게","vital signs 활력 징후"],
+ ex:[{en:"Oxygen is <em>vital</em> to life.",ko:"산소는 생명에 필수적이다."},{en:"Communication is <em>vital</em> in any relationship.",ko:"의사소통은 어떤 관계에서도 중요하다."}]},
+{w:"work out",pron:"/wɜːrk aʊt/",ko:"해결하다; 잘 되다; 운동하다",pos:"phr.v",ph:true,
+ nu:"세 가지 핵심 의미: ①문제·계획을 계산하거나 해결하다 ②결국 좋은 결과로 끝나다 ③헬스장에서 운동하다.",
+ syn:[{s:"resolve",m:"문제나 갈등을 해결하다"},{s:"exercise",m:"운동하다"},{s:"succeed",m:"잘 되다 (결과 의미)"},{s:"calculate",m:"수치를 계산해내다"}],
+ rel:["workout (n.) 운동","work out a solution 해결책을 찾다","things work out 일이 잘 풀리다"],
+ ex:[{en:"I'm sure things will <em>work out</em> in the end.",ko:"결국 일이 잘 될 거라고 확신해요."},{en:"Let's <em>work out</em> a plan together.",ko:"함께 계획을 세워봅시다."}]},
+{w:"yield",pron:"/jiːld/",ko:"산출하다; 항복하다; 생산량",pos:"v/n",ph:false,
+ nu:"노력·투자의 결과를 내거나, 압박에 굴복하거나, 농작물의 수확량을 나타내는 다용도 단어. 금융(수익률)과 농업 모두에서 쓴다.",
+ syn:[{s:"produce",m:"결과물을 만들어내다"},{s:"generate",m:"수익·반응을 발생시키다"},{s:"surrender",m:"저항을 멈추고 항복하다"},{s:"output (n.)",m:"생산량, 산출량"}],
+ rel:["yield (finance) 수익률","crop yield 농작물 수확량","yield to pressure 압박에 굴하다"],
+ ex:[{en:"The negotiations finally <em>yielded</em> results.",ko:"협상이 마침내 결과를 냈다."},{en:"The field <em>yielded</em> a rich harvest.",ko:"그 밭에서 풍성한 수확이 있었다."}]}
+];
+
+const PS=10;
+let pool=[...W];
+let filt=[];
+let pg=0;
+let saved=new Set(JSON.parse(localStorage.getItem('mv3')||'[]'));
+
+function save(){localStorage.setItem('mv3',JSON.stringify([...saved]));document.getElementById('sc0').textContent=saved.size;}
+function shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function pages(){return Math.max(1,Math.ceil(filt.length/PS));}
+
+function rdr(){
+  const words=filt.slice(pg*PS,(pg+1)*PS);
+  document.getElementById('wl').innerHTML=words.map((w,i)=>{
+    const sv=saved.has(w.w);
+    return`<div class="wc" id="c${i}" style="animation-delay:${i*.04}s">
+      <div class="ch" onclick="tog('c${i}')">
+        <div class="wi">
+          <div class="wtop"><span class="wen">${w.w}</span>${w.ph?'<span class="tph">구동사</span>':''}</div>
+          <div class="wpron">${w.pron}</div>
+          <div class="wko">${w.ko}</div>
+          <div class="wpos">${w.pos}</div>
+        </div>
+        <div class="ca">
+          <button class="sbtn" onclick="spk(event,'${w.w}')" title="발음 듣기">🔊</button>
+          <button class="vbtn${sv?' sv':''}" onclick="tgSv(event,'${w.w}')">${sv?'⭐':'☆'}</button>
+          <span class="ei">▼</span>
+        </div>
+      </div>
+      <div class="cd">
+        <div class="ds"><div class="dl">💡 뉘앙스 &amp; 쓰임새</div><div class="nb">${w.nu}</div></div>
+        <div class="ds"><div class="dl">🔄 동의어 (해석 포함)</div><div class="sg">${w.syn.map(s=>`<div class="sr"><span class="sc">${s.s}</span><span class="sm">${s.m}</span></div>`).join('')}</div></div>
+        <div class="ds"><div class="dl">📝 예문 1</div><div class="exb">${w.ex[0].en}<div class="exko">${w.ex[0].ko}</div></div></div>
+        <div class="ds"><div class="dl">📝 예문 2</div><div class="exb">${w.ex[1].en}<div class="exko">${w.ex[1].ko}</div></div></div>
+        ${w.rel?`<div class="ds"><div class="dl">🔗 관련 표현</div><div class="rc">${w.rel.map(r=>`<span class="rch">${r}</span>`).join('')}</div></div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  const tot=pages(),cur=pg+1;
+  document.getElementById('plbl').textContent=`${filt.length}개 중 ${pg*PS+1}~${Math.min((pg+1)*PS,filt.length)}번째`;
+  document.getElementById('pnd').textContent=`${cur} / ${tot}`;
+  document.getElementById('pbtn').disabled=pg===0;
+  document.getElementById('nbtn').disabled=pg>=tot-1;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function tog(id){document.getElementById(id).classList.toggle('ex');}
+function spk(e,w){e.stopPropagation();const u=new SpeechSynthesisUtterance(w);u.lang='en-US';u.rate=0.85;window.speechSynthesis.cancel();window.speechSynthesis.speak(u);}
+function tgSv(e,w){e.stopPropagation();saved.has(w)?saved.delete(w):saved.add(w);save();rdr();}
+function onSrch(){const q=document.getElementById('srch').value.toLowerCase().trim();filt=q?pool.filter(w=>w.w.toLowerCase().includes(q)||w.ko.includes(q)||w.syn.some(s=>s.s.toLowerCase().includes(q))):pool;pg=0;rdr();}
+function doShuffle(){shuf(pool);filt=[...pool];pg=0;document.getElementById('srch').value='';rdr();}
+function nxt(){if(pg<pages()-1){pg++;rdr();}}
+function prv(){if(pg>0){pg--;rdr();}}
+
+function rdrSaved(){
+  const svl=document.getElementById('svl');
+  const words=W.filter(w=>saved.has(w.w));
+  if(!words.length){svl.innerHTML='<div class="se"><div class="ic">⭐</div><p>저장된 단어가 없습니다.<br>단어장에서 ☆를 눌러 저장하세요.</p></div>';return;}
+  svl.innerHTML=words.map((w,i)=>`<div class="wc" id="s${i}" style="animation-delay:${i*.04}s">
+    <div class="ch" onclick="tog('s${i}')">
+      <div class="wi">
+        <div class="wtop"><span class="wen">${w.w}</span>${w.ph?'<span class="tph">구동사</span>':''}</div>
+        <div class="wpron">${w.pron}</div>
+        <div class="wko">${w.ko}</div>
+        <div class="wpos">${w.pos}</div>
+      </div>
+      <div class="ca">
+        <button class="sbtn" onclick="spk(event,'${w.w}')">🔊</button>
+        <button class="vbtn sv" onclick="rmSv(event,'${w.w}')">⭐</button>
+        <span class="ei">▼</span>
+      </div>
+    </div>
+    <div class="cd">
+      <div class="ds"><div class="dl">💡 뉘앙스</div><div class="nb">${w.nu}</div></div>
+      <div class="ds"><div class="dl">🔄 동의어</div><div class="sg">${w.syn.map(s=>`<div class="sr"><span class="sc">${s.s}</span><span class="sm">${s.m}</span></div>`).join('')}</div></div>
+      <div class="ds"><div class="dl">📝 예문 1</div><div class="exb">${w.ex[0].en}<div class="exko">${w.ex[0].ko}</div></div></div>
+      <div class="ds"><div class="dl">📝 예문 2</div><div class="exb">${w.ex[1].en}<div class="exko">${w.ex[1].ko}</div></div></div>
+      ${w.rel?`<div class="ds"><div class="dl">🔗 관련 표현</div><div class="rc">${w.rel.map(r=>`<span class="rch">${r}</span>`).join('')}</div></div>`:''}
+    </div>
+  </div>`).join('');
+}
+function rmSv(e,w){e.stopPropagation();saved.delete(w);save();rdrSaved();}
+function clrAll(){if(!saved.size)return;if(confirm(`저장된 단어 ${saved.size}개를 모두 삭제할까요?`)){saved.clear();save();rdrSaved();rdr();}}
+
+function rdrQuiz(){
+  const svW=W.filter(w=>saved.has(w.w));
+  const qc=document.getElementById('qc');
+  if(svW.length<4){qc.innerHTML=`<div class="qsetup"><h2>✏️ 퀴즈</h2><p>퀴즈는 저장된 단어<br><strong style="color:var(--ac)">${svW.length}개</strong> 중 최소 4개가 필요합니다.</p><button class="btn a" style="width:100%;margin-top:8px" onclick="sw('vocab')">단어장으로 →</button></div>`;return;}
+  qc.innerHTML=`<div class="qsetup"><h2>✏️ 퀴즈</h2><p>저장된 <strong style="color:var(--ac)">${svW.length}개</strong> 단어로 시작!</p><div class="qm"><button class="btn a" onclick="startQ('ko')">🇰🇷 영어 → 한국어</button><button class="btn" style="background:var(--ac2);color:#000;border-color:var(--ac2);font-weight:700" onclick="startQ('en')">🇺🇸 한국어 → 영어</button><button class="btn" style="background:var(--ac3);color:#fff;border-color:var(--ac3);font-weight:700" onclick="startQ('nu')">💡 뉘앙스 맞히기</button></div></div>`;
+}
+
+let qst=null;
+function startQ(mode){
+  const svW=W.filter(w=>saved.has(w.w));
+  const qs=shuf([...svW]).map(word=>{
+    const wrong=shuf(W.filter(w=>w.w!==word.w)).slice(0,3);
+    return{word,opts:shuf([word,...wrong]),mode};
+  });
+  qst={qs,cur:0,score:0,answered:false,mode};
+  renderQ();
+}
+
+function optTxt(o,mode){
+  if(mode==='ko')return o.ko;
+  if(mode==='en')return o.w;
+  return o.nu.substring(0,60)+'…';
+}
+
+function renderQ(){
+  const{qs,cur,score}=qst;
+  const qc=document.getElementById('qc');
+  if(cur>=qs.length){
+    const pct=Math.round(score/qs.length*100);
+    const msg=pct>=80?'훌륭해요! 🎉':pct>=60?'잘 했어요! 👍':'더 연습해봐요! 💪';
+    qc.innerHTML=`<div class="qres"><div style="font-size:13px;color:var(--mu);margin-bottom:4px">${msg}</div><div class="qsc">${score}<span style="font-size:22px;color:var(--mu)">/${qs.length}</span></div><p style="font-size:13px;color:var(--mu);margin:6px 0 18px">정답률 ${pct}%</p><button class="btn a" style="width:100%" onclick="startQ('${qst.mode}')">다시 풀기 🔁</button><div style="height:10px"></div><button class="btn" style="width:100%" onclick="rdrQuiz()">← 돌아가기</button></div>`;
+    return;
+  }
+  const q=qs[cur];
+  const prog=Math.round(cur/qs.length*100);
+  const qTxt=q.mode==='ko'?`<div class="qw">${q.word.w}</div><div style="margin-top:4px"><button style="background:none;border:none;font-size:20px;cursor:pointer" onclick="spk2('${q.word.w}')">🔊</button></div><div class="qsub">${q.word.pron}</div>`
+    :q.mode==='en'?`<div class="qw" style="font-size:19px">${q.word.ko}</div>`
+    :`<div style="font-size:12px;color:var(--mu);line-height:1.6;max-width:280px">"${q.word.nu.substring(0,70)}…"</div><div class="qsub" style="margin-top:8px">어떤 단어일까요?</div>`;
+  qc.innerHTML=`<div class="pb"><div class="pf" style="width:${prog}%"></div></div>
+    <div class="qcard"><div class="qpt">${cur+1} / ${qs.length} · 점수 ${score}</div>${qTxt}</div>
+    <div class="qopts">${q.opts.map((o,i)=>`<button class="qob" id="qo${i}" onclick="ansQ(${i},${q.opts.indexOf(q.word)})">${optTxt(o,q.mode)}</button>`).join('')}</div>`;
+}
+
+function spk2(w){const u=new SpeechSynthesisUtterance(w);u.lang='en-US';u.rate=0.85;window.speechSynthesis.cancel();window.speechSynthesis.speak(u);}
+
+function ansQ(sel,ci){
+  if(qst.answered)return;
+  qst.answered=true;
+  document.getElementById('qo'+ci).classList.add('ok');
+  if(sel!==ci)document.getElementById('qo'+sel).classList.add('no');
+  else qst.score++;
+  setTimeout(()=>{qst.cur++;qst.answered=false;renderQ();},900);
+}
+
+function sw(tab){
+  ['vocab','saved','quiz'].forEach((t,i)=>{
+    document.getElementById('pnl-'+t).classList.toggle('on',t===tab);
+    document.querySelectorAll('.tb')[i].classList.toggle('on',t===tab);
+  });
+  if(tab==='saved')rdrSaved();
+  if(tab==='quiz')rdrQuiz();
+}
+
+shuf(pool);filt=[...pool];rdr();save();
+</script>
+</body>
+</html>
